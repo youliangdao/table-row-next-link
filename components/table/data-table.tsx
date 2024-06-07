@@ -118,7 +118,6 @@ export const DataTable = () => {
           ))}
         </TableBody>
       </Table>
-      {/* <pre>{JSON.stringify(data, null, "\t")}</pre> */}
     </article>
   )
 }
