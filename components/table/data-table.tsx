@@ -1,45 +1,29 @@
-import { useState } from 'react';
-
+import { useState } from "react"
+import Link from "next/link"
+import { useRouter } from "next/router"
+import { data as defaultData } from "@/data/data"
 import {
   flexRender,
   getCoreRowModel,
   useReactTable,
-} from '@tanstack/react-table';
-import { columns } from './columns';
+} from "@tanstack/react-table"
 
-import { Student } from '@/components/table/columns';
-
-const defaultData: Student[] = [
-  {
-    studentId: 1111,
-    name: 'Bahar Constantia',
-    dateOfBirth: '1984-01-04',
-    major: 'Computer Science',
-  },
-  {
-    studentId: 2222,
-    name: 'Harold Nona',
-    dateOfBirth: '1961-05-10',
-    major: 'Communications',
-  },
-  {
-    studentId: 3333,
-    name: 'Raginolf Arnulf',
-    dateOfBirth: '1991-10-12',
-    major: 'Business',
-  },
-  {
-    studentId: 4444,
-    name: 'Marvyn Wendi',
-    dateOfBirth: '1978-09-24',
-    major: 'Psychology',
-  },
-];
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../ui/table"
+import { columns } from "./columns"
 
 export const DataTable = () => {
-  const [data, setData] = useState(() => [...defaultData]);
-  const [originalData, setOriginalData] = useState(() => [...defaultData]);
-  const [editedRows, setEditedRows] = useState({});
+  const [data, setData] = useState(() => [...defaultData])
+  const [originalData, setOriginalData] = useState(() => [...defaultData])
+  const [editedRows, setEditedRows] = useState({})
+
+  const { push } = useRouter()
 
   const table = useReactTable({
     data,
@@ -54,11 +38,11 @@ export const DataTable = () => {
             old.map((row, index) =>
               index === rowIndex ? originalData[rowIndex] : row
             )
-          );
+          )
         } else {
           setOriginalData((old) =>
             old.map((row, index) => (index === rowIndex ? data[rowIndex] : row))
-          );
+          )
         }
       },
       updateData: (rowIndex: number, columnId: string, value: string) => {
@@ -68,47 +52,73 @@ export const DataTable = () => {
               return {
                 ...old[rowIndex],
                 [columnId]: value,
-              };
+              }
             }
-            return row;
+            return row
           })
-        );
+        )
       },
     },
-  });
+  })
 
   return (
     <article className="table-container">
-      <table>
-        <thead>
+      <Table>
+        <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
+            <TableRow key={headerGroup.id}>
+              {/* <th key="extra-column"></th> */}
               {headerGroup.headers.map((header) => (
-                <th key={header.id}>
+                <TableHead key={header.id}>
                   {header.isPlaceholder
                     ? null
                     : flexRender(
                         header.column.columnDef.header,
                         header.getContext()
                       )}
-                </th>
+                </TableHead>
               ))}
-            </tr>
+            </TableRow>
           ))}
-        </thead>
-        <tbody>
+        </TableHeader>
+        <TableBody>
           {table.getRowModel().rows.map((row) => (
-            <tr key={row.id}>
+            <TableRow
+              key={row.id}
+              className="relative cursor-pointer hover:bg-slate-600"
+              onClick={(event) => {
+                event.preventDefault()
+                if (event.metaKey || event.ctrlKey) {
+                  const win = window.open(
+                    `/students/${row.original.studentId}`,
+                    "_blank"
+                  )
+                  win.focus()
+                } else {
+                  push(`/students/${row.original.studentId}`)
+                }
+              }}
+            >
+              {/* <td>
+                <Link
+                  href="#"
+                  className="absolute top-0 left-0 h-full w-full"
+                  onClick={(e) => {
+                    console.log(row)
+                    e.preventDefault()
+                  }}
+                />
+              </td> */}
               {row.getVisibleCells().map((cell) => (
-                <td key={cell.id}>
+                <TableCell key={cell.id}>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
+                </TableCell>
               ))}
-            </tr>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
       {/* <pre>{JSON.stringify(data, null, "\t")}</pre> */}
     </article>
-  );
-};
+  )
+}

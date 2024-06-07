@@ -1,32 +1,36 @@
-import { useState, useEffect, ChangeEvent, MouseEvent } from 'react';
+import { ChangeEvent, MouseEvent, useEffect, useState } from "react"
 
 type Option = {
-  label: string;
-  value: string;
-};
+  label: string
+  value: string
+}
 
 export const TableCell = ({ getValue, row, column, table }) => {
-  const initialValue = getValue();
-  const columnMeta = column.columnDef.meta;
-  const tableMeta = table.options.meta;
-  const [value, setValue] = useState(initialValue);
+  const initialValue = getValue()
+  const columnMeta = column.columnDef.meta
+  const tableMeta = table.options.meta
+  const [value, setValue] = useState(initialValue)
 
   useEffect(() => {
-    setValue(initialValue);
-  }, [initialValue]);
+    setValue(initialValue)
+  }, [initialValue])
 
   const onBlur = () => {
-    tableMeta?.updateData(row.index, column.id, value);
-  };
+    tableMeta?.updateData(row.index, column.id, value)
+  }
 
   const onSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setValue(e.target.value);
-    tableMeta?.updateData(row.index, column.id, e.target.value);
-  };
+    setValue(e.target.value)
+    tableMeta?.updateData(row.index, column.id, e.target.value)
+  }
 
   if (tableMeta?.editedRows[row.id]) {
-    return columnMeta?.type === 'select' ? (
-      <select onChange={onSelectChange} value={initialValue}>
+    return columnMeta?.type === "select" ? (
+      <select
+        onChange={onSelectChange}
+        value={initialValue}
+        onClick={(e) => e.stopPropagation()}
+      >
         {columnMeta?.options?.map((option: Option) => (
           <option key={option.value} value={option.value}>
             {option.label}
@@ -36,28 +40,30 @@ export const TableCell = ({ getValue, row, column, table }) => {
     ) : (
       <input
         value={value}
+        onClick={(e) => e.stopPropagation()}
         onChange={(e) => setValue(e.target.value)}
         onBlur={onBlur}
-        type={columnMeta?.type || 'text'}
+        type={columnMeta?.type || "text"}
       />
-    );
+    )
   }
-  return <span>{value}</span>;
-};
+  return <span>{value}</span>
+}
 
 export const EditCell = ({ row, table }) => {
-  const meta = table.options.meta;
+  const meta = table.options.meta
 
   const setEditedRows = (e: MouseEvent<HTMLButtonElement>) => {
-    const elName = e.currentTarget.name;
+    e.stopPropagation()
+    const elName = e.currentTarget.name
     meta?.setEditedRows((old: []) => ({
       ...old,
       [row.id]: !old[row.id],
-    }));
-    if (elName !== 'edit') {
-      meta?.revertData(row.index, e.currentTarget.name === 'cancel');
+    }))
+    if (elName !== "edit") {
+      meta?.revertData(row.index, e.currentTarget.name === "cancel")
     }
-  };
+  }
 
   return (
     <div className="edit-cell-container">
@@ -65,7 +71,7 @@ export const EditCell = ({ row, table }) => {
         <div className="edit-cell">
           <button onClick={setEditedRows} name="cancel">
             X
-          </button>{' '}
+          </button>{" "}
           <button onClick={setEditedRows} name="done">
             ✔
           </button>
@@ -76,5 +82,5 @@ export const EditCell = ({ row, table }) => {
         </button>
       )}
     </div>
-  );
-};
+  )
+}
